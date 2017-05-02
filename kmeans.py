@@ -81,6 +81,20 @@ def get_euclidian_distance(vector_1, vector_2):
     euclidian_distance = math.sqrt(total_distance)
     return euclidian_distance
 
+def get_centroid(cluster):
+    """Return the centroid for a cluster of points"""
+    attribute_sums = []
+    num_attributes = len(cluster[0].vector)
+    for i in xrange(num_attributes):
+        attribute_sums.append(0)
+    for point in cluster:
+        for j,attribute in enumerate(point.vector):
+            attribute_sums[j] = attribute_sums[j] + attribute
+    new_centroid = []
+    for i in xrange(num_attributes):
+        new_centroid.append(round(float(attribute_sums[i])/float(len(cluster)), 3))
+    return new_centroid
+
 """
 Given the current set of clusters and the current set of centroids,
 calculates whether any patients should be changed to a different cluster,
@@ -111,16 +125,7 @@ def generate_new_clusters(clusters, centroids):
 
     # Calculate centroids of each new cluster
     for cluster in new_clusters:
-        attribute_sums = []
-        num_attributes = len(cluster[0].vector)
-        for i in xrange(num_attributes):
-            attribute_sums.append(0)
-        for point in cluster:
-            for j,attribute in enumerate(point.vector):
-                attribute_sums[j] = attribute_sums[j] + attribute
-        new_centroid = []
-        for i in xrange(num_attributes):
-            new_centroid.append(round(float(attribute_sums[i])/float(len(cluster)), 3))
+        new_centroid = get_centroid(cluster)
         new_centroids.append(new_centroid)
     return([new_clusters, new_centroids])
 
