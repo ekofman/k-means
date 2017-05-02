@@ -88,10 +88,8 @@ def get_centroid(cluster):
     num_attributes = len(cluster[0].vector) 
     attribute_sums = np.zeros(shape=(num_attributes, 1))
     for point in cluster:
-        attribute_sums = attribute_sums + np.array(point.vector)
-
-        #for j, attribute in enumerate(point.vector):
-        #    attribute_sums[j] = attribute_sums[j] + attribute
+        for j, attribute in enumerate(point.vector):
+            attribute_sums[j] = attribute_sums[j] + attribute
     new_centroid = []
     for i in xrange(num_attributes):
         new_centroid.append(round(float(attribute_sums[i])/num_points, 3))
