@@ -4,11 +4,11 @@ import argparse
 
 # Usage:python kmeans.py k data_file max_iterations [centroid_file] 
 
+"""
+This DataPoint class defines an entity that contains an id number and a
+vector of features that belong to the datapoint.
+"""
 class DataPoint:
-    """
-    This DataPoint class defines an entity that contains an id number and a
-    vector of features that belong to the datapoint.
-    """
     def __init__(self, number, vector):
         self.vector = vector
         self.number = number
@@ -17,13 +17,12 @@ class DataPoint:
         string = str(self.number) + ": "  + str(self.vector)
         return string
 
-
+"""
+Given a filename of a file containing the coordinates of centroids, this
+function reads centroids into an array of tuples, such that each tuple
+represents the coordinates of one centroid.
+"""
 def read_centroids(fileName):
-    """
-    Given a filename of a file containing the coordinates of centroids, this
-    function reads centroids into an array of tuples, such that each tuple
-    represents the coordinates of one centroid.
-    """
     result_array = []
     f = open(fileName, 'r')
     lines = f.readlines()
@@ -36,11 +35,11 @@ def read_centroids(fileName):
         result_array.append(row_array)
     return result_array
 
+"""
+Given the name of a file containing datapoint tuples, creates and returns an array of
+DataPoint objects
+"""
 def read_test_data(file_name):
-    """
-    Given the name of a file containing datapoint tuples, creates and returns an array of
-    DataPoint objects
-    """
     data_point_array = []
     f = open(file_name, 'r')
     lines = f.readlines()
@@ -55,12 +54,12 @@ def read_test_data(file_name):
         data_point_array.append(patient)
     return data_point_array
 
+"""
+Given "k", the number of centroids (and ultimately, clusters) desired, and
+the array of DataPoint objects read in originally, randomly chooses "k" datapoint
+coordinates to be the starting centroids
+"""
 def generate_centroids_randomly(k, test_data):
-    """
-    Given "k", the number of centroids (and ultimately, clusters) desired, and
-    the array of DataPoint objects read in originally, randomly chooses "k" datapoint
-    coordinates to be the starting centroids
-    """
     rand_indices_set = set()
     while len(rand_indices_set) < k:
         rand_index = random.randint(0, len(test_data)-1)
@@ -70,39 +69,25 @@ def generate_centroids_randomly(k, test_data):
         rand_centroids.append(test_data[index].vector)
     return rand_centroids
 
-
+"""
+Given two vectors, calculates the euclidian distance including all
+attributes
+"""
 def get_euclidian_distance(vector_1, vector_2):
-    """
-    Given two vectors, calculates the euclidian distance including all
-    attributes
-    """
     total_distance = 0
     for i in xrange(len(vector_1)):
-        attribute_distance = (vector_1[i] - vector_2[i])** 2
+        attribute_distance = (vector_1[i] - vector_2[i])**2
         total_distance = total_distance + attribute_distance
     euclidian_distance = math.sqrt(total_distance)
     return euclidian_distance
 
-def get_cluster_centroid(cluster):
-    """Calculate the centroid for a cluster"""
-    attribute_sums = []
-    num_attributes = len(cluster[0].vector)
-    for i in xrange(num_attributes):
-        attribute_sums.append(0)
-    for point in cluster:
-        for j, attribute in enumerate(point.vector):
-            attribute_sums[j] = attribute_sums[j] + attribute
-    new_centroid = []
-    for i in xrange(num_attributes):
-        new_centroid.append(round(float(attribute_sums[i])/float(len(cluster)), 3))
-
+"""
+Given the current set of clusters and the current set of centroids,
+calculates whether any patients should be changed to a different cluster,
+then recalculates the centroids for the new clusters. Returns both the
+new clusters and the new centroids.
+"""
 def generate_new_clusters(clusters, centroids):
-    """
-    Given the current set of clusters and the current set of centroids,
-    calculates whether any patients should be changed to a different cluster,
-    then recalculates the centroids for the new clusters. Returns both the
-    new clusters and the new centroids.
-    """
     new_clusters = []
     new_centroids = []
 
@@ -115,7 +100,7 @@ def generate_new_clusters(clusters, centroids):
     for cluster in clusters:
         for point in cluster:
             min_distance = sys.maxint
-            cluster_assignment = -1
+            cluster_assignment = None
             for i, centroid in enumerate(centroids):
                 distance = get_euclidian_distance(point.vector, centroid)
                 if distance < min_distance:
@@ -126,21 +111,30 @@ def generate_new_clusters(clusters, centroids):
 
     # Calculate centroids of each new cluster
     for cluster in new_clusters:
-        new_centroid = get_cluster_centroid(cluster)
+        attribute_sums = []
+        num_attributes = len(cluster[0].vector)
+        for i in xrange(num_attributes):
+            attribute_sums.append(0)
+        for point in cluster:
+            for j,attribute in enumerate(point.vector):
+                attribute_sums[j] = attribute_sums[j] + attribute
+        new_centroid = []
+        for i in xrange(num_attributes):
+            new_centroid.append(round(float(attribute_sums[i])/float(len(cluster)), 3))
         new_centroids.append(new_centroid)
     return([new_clusters, new_centroids])
 
-def centroid_distance_sum(cluster):
+def centroid_sum_distance(cluster):
     """Simply sum the values for each element of the cluster's vector"""
     total_sum = 0
     for point in cluster:
         total_sum = total_sum + sum(point.vector)
     return total_sum
-  
+
+"""
+main function, runs entire program
+"""    
 if __name__ == "__main__":
-    """
-    main function, runs entire program
-    """  
     parser = argparse.ArgumentParser(description='Run k-means clustering algorithm')
     parser.add_argument('k', metavar='k', type=int)
     parser.add_argument('max_iterations', metavar='max_iterations', type=int)
@@ -177,7 +171,7 @@ if __name__ == "__main__":
     sys.stdout.write("Converged. Final clusters: \n")
 
     # Print the output
-    for i, new_cluster in enumerate(sorted(new_clusters, key=centroid_distance_sum)):
+    for i, new_cluster in enumerate(sorted(new_clusters, key=centroid_sum_distance)):
         sys.stdout.write("Cluster {}:\n".format(i))
         for point in new_cluster:
             sys.stdout.write("\t{}\n".format(point))
