@@ -150,6 +150,7 @@ if __name__ == "__main__":
     k = args.k
     max_iterations = args.max_iterations
     data_path = args.data_path
+    centroids_path = args.centroids_path
     
     testData = read_test_data(data_path)    
     if k > len(testData):
