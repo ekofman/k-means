@@ -1,7 +1,7 @@
 import sys, re, random, math
 from sets import Set
 import argparse
-import numpy
+import numpy as np
 
 # Usage:python kmeans.py k data_file max_iterations [centroid_file] 
 
@@ -84,17 +84,17 @@ def get_euclidian_distance(vector_1, vector_2):
 
 def get_centroid(cluster):
     """Return the centroid for a cluster of points"""
-    cluster_length = float(len(cluster))
-    attribute_sums = []
-    num_attributes = len(cluster[0].vector)
-    for i in xrange(num_attributes):
-        attribute_sums.append(0)
+    num_points = float(len(cluster))
+    num_attributes = len(cluster[0].vector) 
+    attribute_sums = np.zeros(shape=(num_attributes, 1))
     for point in cluster:
-        for j, attribute in enumerate(point.vector):
-            attribute_sums[j] = attribute_sums[j] + attribute
+        attribute_sums = attribute_sums + np.array(point.vector)
+
+        #for j, attribute in enumerate(point.vector):
+        #    attribute_sums[j] = attribute_sums[j] + attribute
     new_centroid = []
     for i in xrange(num_attributes):
-        new_centroid.append(round(float(attribute_sums[i])/cluster_length, 3))
+        new_centroid.append(round(float(attribute_sums[i])/num_points, 3))
     return new_centroid
 
 """
